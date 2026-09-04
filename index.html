@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визаран из Белграда</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+    .car-scheme {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin: 20px auto;
+        padding: 20px;
+        max-width: 350px;
+        background: #f0f0f0;
+        border-radius: 15px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .seat {
+        width: 50px;
+        height: 50px;
+        background-color: #b0bec5; /* серый — свободно */
+        border: 2px solid #78909c;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .seat:hover {
+        background-color: #90a4ae;
+    }
+
+    .seat.selected {
+        background-color: #4caf50; /* зелёный — выбрано */
+        border-color: #388e3c;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .seat.taken {
+        background-color: #d32f2f; /* красный — занято */
+        border-color: #b71c1c;
+        color: white;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    .booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.booking-form label {
+    font-weight: 500;
+}
+
+.booking-form input,
+.booking-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.seat-spacer {
+    width: 50px;          /* такая же ширина, как у .seat */
+    height: 50px;         /* высота, чтобы сохранить выравнивание */
+    visibility: hidden;   /* элемент невидим, но занимает место */
+    pointer-events: none; /* не реагирует на клики */
+}
+.confirm-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 30px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.2s;
+}
+
+.confirm-btn:hover {
+    background-color: #1976d2;
+}
+
+.confirm-btn:active {
+    background-color: #1565c0;
+}
+</style>
+</head>
+<body>
+    <h1>Выбор места</h1>
+    <div class="booking-form">
+    <label for="datePicker">Дата поездки:</label>
+    <input type="date" id="datePicker" required>
+
+    <label for="timePicker">Время отправления:</label>
+    <select id="timePicker" required>
+        <option value="">-- выберите время --</option>
+        <option value="09:00">09:00</option>
+        <option value="12:00">12:00</option>
+        <option value="18:00">18:00</option>
+    </select>
+</div>
+    <div class="car-scheme" id="carScheme">
+    <!-- Ряд 1 -->
+     <div class="summary" id="summary">
+    <p>Дата: <span id="selectedDate">не выбрана</span></p>
+    <p>Время: <span id="selectedTime">не выбрано</span></p>
+    <p>Места: <span id="selectedSeats">нет</span></p>
+</div>
+    <div class="row" data-row="1">
+        <div class="seat-spacer"></div>
+        <div class="seat" data-seat="1">1</div>
+        <div class="seat" data-seat="2">2</div>
+</div>
+    <!-- Ряд 2 -->
+    <div class="row" data-row="2">
+        <div class="seat" data-seat="3">3</div>
+        <div class="seat" data-seat="4">4</div>
+        <div class="seat" data-seat="5">5</div>
+    </div>
+    <!-- Ряд 3 -->
+    <div class="row" data-row="3">
+        <div class="seat" data-seat="6">6</div>
+        <div class="seat" data-seat="7">7</div>
+        <div class="seat" data-seat="8">8</div>
+    </div>
+    <button id="confirmBookingBtn" class="confirm-btn">Подтвердить бронирование</button>
+</div>
+    <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready(); // говорим Telegram, что страница загрузилась
+
+    // Пытаемся получить данные пользователя
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+        document.body.innerHTML += `<p>Привет, ${user.first_name}!</p>`;
+    } else {
+        document.body.innerHTML += `<p>Привет, гость!</p>`;
+    }
+</script>
+<script>
+    // === Логика выбора мест ===
+    const seats = document.querySelectorAll('.seat');
+
+    // Для теста пометим одно место как занятое (позже будем получать с сервера)
+
+    seats.forEach(seat => {
+        seat.addEventListener('click', function() {
+            // Если место занято, ничего не делаем
+            if (this.classList.contains('taken')) {
+                return;
+            }
+
+            // Переключаем класс selected
+            this.classList.toggle('selected');
+        });
+    });
+</script>
+<script>
+    // === Логика формы и сводки ===
+    const datePicker = document.getElementById('datePicker');
+    const timePicker = document.getElementById('timePicker');
+    const selectedDateSpan = document.getElementById('selectedDate');
+    const selectedTimeSpan = document.getElementById('selectedTime');
+    const selectedSeatsSpan = document.getElementById('selectedSeats');
+
+    // Функция обновления сводки
+    function updateSummary() {
+        // Дата
+        selectedDateSpan.textContent = datePicker.value || 'не выбрана';
+        // Время
+        selectedTimeSpan.textContent = timePicker.value || 'не выбрано';
+        // Места (собираем все .seat.selected)
+        const selected = document.querySelectorAll('.seat.selected');
+        if (selected.length === 0) {
+            selectedSeatsSpan.textContent = 'нет';
+        } else {
+            const numbers = Array.from(selected).map(s => s.dataset.seat).join(', ');
+            selectedSeatsSpan.textContent = numbers;
+        }
+    }
+
+    // Обработчики изменений
+    datePicker.addEventListener('change', updateSummary);
+    timePicker.addEventListener('change', updateSummary);
+
+    // Также обновляем сводку при клике на место
+    document.querySelectorAll('.seat').forEach(seat => {
+        seat.addEventListener('click', function() {
+            // после переключения класса, обновим сводку
+            setTimeout(updateSummary, 0);
+        });
+    });
+
+    // Инициализация
+    updateSummary();
+</script>
+<script>
+    const confirmBtn = document.getElementById('confirmBookingBtn');
+
+    confirmBtn.addEventListener('click', function() {
+        // Проверяем, что все поля заполнены
+        const date = datePicker.value;
+        const time = timePicker.value;
+        const selectedSeats = document.querySelectorAll('.seat.selected');
+
+        if (!date) {
+            alert('Пожалуйста, выберите дату поездки.');
+            return;
+        }
+        if (!time) {
+            alert('Пожалуйста, выберите время отправления.');
+            return;
+        }
+        if (selectedSeats.length === 0) {
+            alert('Пожалуйста, выберите хотя бы одно место.');
+            return;
+        }
+
+        // Собираем номера выбранных мест
+        const seatNumbers = Array.from(selectedSeats).map(seat => seat.dataset.seat).join(', ');
+        const totalPrice = selectedSeats.length * 1990;
+        // Формируем сообщение
+        const message = `✅ Бронирование подтверждено!\n\n` +
+                `📅 Дата: ${date}\n` +
+                `🕒 Время: ${time}\n` +
+                `💺 Места: ${seatNumbers}\n` +
+                `💰 Цена: ${totalPrice} дин.\n\n` +
+                `Спасибо!`;
+
+        // Показываем сообщение (в будущем здесь будет отправка на сервер)
+        alert(message);
+
+        // Опционально можно сбросить выбор после подтверждения
+        // selectedSeats.forEach(seat => seat.classList.remove('selected'));
+        // datePicker.value = '';
+        // timePicker.value = '';
+        // updateSummary();
+    });
+</script>
+</body>
+</html>
