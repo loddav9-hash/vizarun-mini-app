@@ -420,7 +420,19 @@ if (sendError) {
         alert(message);
     });
 
-    // === Инициализация ===
+      // Подписка на изменения в таблице bookings
+    const channel = supabaseClient
+      .channel('bookings-changes')
+      .on(
+    'postgres_changes',
+    { event: '*', schema: 'public', table: 'bookings' },
+    (payload) => {
+      console.log('Изменение в бронях:', payload);
+      loadTakenSeats(); // перезагружаем занятые места
+    }
+  )
+  .subscribe();
+      // === Инициализация ===
     updateSummary();
     loadTakenSeats();
 </script>
