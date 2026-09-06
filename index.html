@@ -393,7 +393,18 @@ h1 {
             alert('Произошла ошибка. Попробуйте ещё раз.');
             return;
         }
+  // Отправка подтверждения в личку через Edge Function
+        const { error: sendError } = await supabaseClient.functions.invoke('send-booking-confirmation', {
+          body: {
+            chat_id: userId,
+            text: `✅ Бронирование подтверждено!\n\n📅 Дата: ${date}\n🕒 Время: ${time}\n📍 Точка посадки: ${pickup}\n💺 Места: ${seatNumbers.join(', ')}\n💰 Цена: ${totalPrice} дин.`
+  }
+});
 
+if (sendError) {
+  console.error('Ошибка отправки сообщения:', sendError);
+  // Не блокируем пользователя, просто логируем
+}
         // Сброс выбора
         selectedSeats.forEach(seat => seat.classList.remove('selected'));
         updateSummary();
