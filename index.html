@@ -218,6 +218,12 @@ h1 {
             <option value="12:00">12:00</option>
             <option value="18:00">18:00</option>
         </select>
+        <label for="pickupPoint">Точка посадки:</label>
+            <select id="pickupPoint" required>
+            <option value="">-- выберите точку --</option>
+            <option value="Белград на воде">Белград на воде</option>
+            <option value="Сава центр">Сава центр</option>
+        </select>
     </div>
 
     <div class="car-scheme" id="carScheme">
@@ -250,152 +256,162 @@ h1 {
     <div class="summary" id="summary">
         <p>Дата: <span id="selectedDate">не выбрана</span></p>
         <p>Время: <span id="selectedTime">не выбрано</span></p>
+        <p>Точка посадки: <span id="selectedPickup">не выбрана</span></p>
         <p>Места: <span id="selectedSeats">нет</span></p>
         <p>Цена: <span id="selectedPrice">0</span> дин.</p>
     </div>
 
     <button id="confirmBookingBtn" class="confirm-btn">Подтвердить бронирование</button>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-        // === Supabase ===
-        const SUPABASE_URL = 'https://fzkrmvvzucdrdqioedbn.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_mw0YA3FZpGiRudzjaMkhXQ_nRtNsWbq';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // === Supabase ===
+    const SUPABASE_URL = 'https://fzkrmvvzucdrdqioedbn.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_mw0YA3FZpGiRudzjaMkhXQ_nRtNsWbq';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // === Элементы ===
-        const datePicker = document.getElementById('datePicker');
-        const timePicker = document.getElementById('timePicker');
-        const selectedDateSpan = document.getElementById('selectedDate');
-        const selectedTimeSpan = document.getElementById('selectedTime');
-        const selectedSeatsSpan = document.getElementById('selectedSeats');
-        const selectedPriceSpan = document.getElementById('selectedPrice');
-        const confirmBtn = document.getElementById('confirmBookingBtn');
-        const seats = document.querySelectorAll('.seat');
+    // === Элементы ===
+    const datePicker = document.getElementById('datePicker');
+    const timePicker = document.getElementById('timePicker');
+    const pickupPoint = document.getElementById('pickupPoint');
+    const selectedDateSpan = document.getElementById('selectedDate');
+    const selectedTimeSpan = document.getElementById('selectedTime');
+    const selectedPickupSpan = document.getElementById('selectedPickup');
+    const selectedSeatsSpan = document.getElementById('selectedSeats');
+    const selectedPriceSpan = document.getElementById('selectedPrice');
+    const confirmBtn = document.getElementById('confirmBookingBtn');
+    const seats = document.querySelectorAll('.seat');
 
-        // === Обновление сводки ===
-        function updateSummary() {
-            const date = datePicker.value;
-            const time = timePicker.value;
-            const selected = document.querySelectorAll('.seat.selected');
+    // === Обновление сводки ===
+    function updateSummary() {
+        const date = datePicker.value;
+        const time = timePicker.value;
+        const pickup = pickupPoint.value;
+        const selected = document.querySelectorAll('.seat.selected');
 
-            selectedDateSpan.textContent = date || 'не выбрана';
-            selectedTimeSpan.textContent = time || 'не выбрано';
+        selectedDateSpan.textContent = date || 'не выбрана';
+        selectedTimeSpan.textContent = time || 'не выбрано';
+        selectedPickupSpan.textContent = pickup || 'не выбрана';
 
-            if (selected.length === 0) {
-                selectedSeatsSpan.textContent = 'нет';
-                selectedPriceSpan.textContent = '0';
-            } else {
-                const numbers = Array.from(selected).map(s => s.dataset.seat).join(', ');
-                selectedSeatsSpan.textContent = numbers;
-                selectedPriceSpan.textContent = selected.length * 1990;
-            }
+        if (selected.length === 0) {
+            selectedSeatsSpan.textContent = 'нет';
+            selectedPriceSpan.textContent = '0';
+        } else {
+            const numbers = Array.from(selected).map(s => s.dataset.seat).join(', ');
+            selectedSeatsSpan.textContent = numbers;
+            selectedPriceSpan.textContent = selected.length * 1990;
+        }
+    }
+
+    // === Загрузка занятых мест ===
+    async function loadTakenSeats() {
+        const date = datePicker.value;
+        const time = timePicker.value;
+
+        seats.forEach(seat => seat.classList.remove('taken'));
+        if (!date || !time) return;
+
+        const { data, error } = await supabaseClient
+            .from('bookings')
+            .select('seats')
+            .eq('date', date)
+            .eq('time', time);
+
+        if (error) {
+            console.error('Ошибка загрузки занятых мест:', error);
+            return;
         }
 
-        // === Загрузка занятых мест ===
-        async function loadTakenSeats() {
-            const date = datePicker.value;
-            const time = timePicker.value;
-
-            seats.forEach(seat => seat.classList.remove('taken'));
-            if (!date || !time) return;
-
-            const { data, error } = await supabaseClient
-                .from('bookings')
-                .select('seats')
-                .eq('date', date)
-                .eq('time', time);
-
-            if (error) {
-                console.error('Ошибка загрузки занятых мест:', error);
-                return;
+        const takenSeats = [];
+        data.forEach(booking => {
+            if (booking.seats && Array.isArray(booking.seats)) {
+                takenSeats.push(...booking.seats);
             }
-
-            const takenSeats = [];
-            data.forEach(booking => {
-                if (booking.seats && Array.isArray(booking.seats)) {
-                    takenSeats.push(...booking.seats);
-                }
-            });
-
-            takenSeats.forEach(seatNumber => {
-                const seat = document.querySelector(`.seat[data-seat="${seatNumber}"]`);
-                if (seat) seat.classList.add('taken');
-            });
-        }
-
-        // === Выбор места ===
-        seats.forEach(seat => {
-            seat.addEventListener('click', function() {
-                if (this.classList.contains('taken')) return;
-                this.classList.toggle('selected');
-                updateSummary();
-            });
         });
 
-        // === Обработчики даты/времени ===
-        datePicker.addEventListener('change', () => {
+        takenSeats.forEach(seatNumber => {
+            const seat = document.querySelector(`.seat[data-seat="${seatNumber}"]`);
+            if (seat) seat.classList.add('taken');
+        });
+    }
+
+    // === Выбор места ===
+    seats.forEach(seat => {
+        seat.addEventListener('click', function() {
+            if (this.classList.contains('taken')) return;
+            this.classList.toggle('selected');
             updateSummary();
-            loadTakenSeats();
         });
-        timePicker.addEventListener('change', () => {
-            updateSummary();
-            loadTakenSeats();
-        });
+    });
 
-        // === Подтверждение брони ===
-        confirmBtn.addEventListener('click', async function() {
-            const date = datePicker.value;
-            const time = timePicker.value;
-            const selectedSeats = document.querySelectorAll('.seat.selected');
-
-            if (!date) { alert('Пожалуйста, выберите дату поездки.'); return; }
-            if (!time) { alert('Пожалуйста, выберите время отправления.'); return; }
-            if (selectedSeats.length === 0) { alert('Пожалуйста, выберите хотя бы одно место.'); return; }
-
-            const seatNumbers = Array.from(selectedSeats).map(seat => seat.dataset.seat);
-            const totalPrice = seatNumbers.length * 1990;
-
-            const tgUser = tg.initDataUnsafe?.user;
-            const userId = tgUser ? tgUser.id.toString() : 'guest-' + Date.now();
-            const userName = tgUser ? (tgUser.first_name || '') + ' ' + (tgUser.last_name || '') : 'Гость';
-
-            const { error: insertError } = await supabaseClient
-                .from('bookings')
-                .insert([{
-                    date,
-                    time,
-                    seats: seatNumbers,
-                    user_id: userId,
-                    user_name: userName,
-                    created_at: new Date().toISOString()
-                }]);
-
-            if (insertError) {
-                console.error('Ошибка бронирования:', insertError);
-                alert('Произошла ошибка. Попробуйте ещё раз.');
-                return;
-            }
-
-            // Сброс выбора
-            selectedSeats.forEach(seat => seat.classList.remove('selected'));
-            updateSummary();
-            await loadTakenSeats();
-
-            const message = `✅ Бронирование подтверждено!\n\n` +
-                            `📅 Дата: ${date}\n` +
-                            `🕒 Время: ${time}\n` +
-                            `💺 Места: ${seatNumbers.join(', ')}\n` +
-                            `💰 Цена: ${totalPrice} дин.\n\n` +
-                            `Спасибо!`;
-            alert(message);
-        });
-
-        // === Инициализация ===
+    // === Обработчики даты/времени/точки ===
+    datePicker.addEventListener('change', () => {
         updateSummary();
         loadTakenSeats();
-    </script>
+    });
+    timePicker.addEventListener('change', () => {
+        updateSummary();
+        loadTakenSeats();
+    });
+    pickupPoint.addEventListener('change', updateSummary);
+
+    // === Подтверждение брони ===
+    confirmBtn.addEventListener('click', async function() {
+        const date = datePicker.value;
+        const time = timePicker.value;
+        const pickup = pickupPoint.value;
+        const selectedSeats = document.querySelectorAll('.seat.selected');
+
+        if (!date) { alert('Пожалуйста, выберите дату поездки.'); return; }
+        if (!time) { alert('Пожалуйста, выберите время отправления.'); return; }
+        if (!pickup) { alert('Пожалуйста, выберите точку посадки.'); return; }
+        if (selectedSeats.length === 0) { alert('Пожалуйста, выберите хотя бы одно место.'); return; }
+
+        const seatNumbers = Array.from(selectedSeats).map(seat => seat.dataset.seat);
+        const totalPrice = seatNumbers.length * 1990;
+
+        const tgUser = tg.initDataUnsafe?.user;
+        const userId = tgUser ? tgUser.id.toString() : 'guest-' + Date.now();
+        const userName = tgUser ? (tgUser.first_name || '') + ' ' + (tgUser.last_name || '') : 'Гость';
+
+        const { error: insertError } = await supabaseClient
+            .from('bookings')
+            .insert([{
+                date,
+                time,
+                seats: seatNumbers,
+                user_id: userId,
+                user_name: userName,
+                pickup_point: pickup,
+                created_at: new Date().toISOString()
+            }]);
+
+        if (insertError) {
+            console.error('Ошибка бронирования:', insertError);
+            alert('Произошла ошибка. Попробуйте ещё раз.');
+            return;
+        }
+
+        // Сброс выбора
+        selectedSeats.forEach(seat => seat.classList.remove('selected'));
+        updateSummary();
+        await loadTakenSeats();
+
+        const message = `✅ Бронирование подтверждено!\n\n` +
+                        `📅 Дата: ${date}\n` +
+                        `🕒 Время: ${time}\n` +
+                        `📍 Точка посадки: ${pickup}\n` +
+                        `💺 Места: ${seatNumbers.join(', ')}\n` +
+                        `💰 Цена: ${totalPrice} дин.\n\n` +
+                        `Спасибо!`;
+        alert(message);
+    });
+
+    // === Инициализация ===
+    updateSummary();
+    loadTakenSeats();
+</script>
 </body>
 </html>
