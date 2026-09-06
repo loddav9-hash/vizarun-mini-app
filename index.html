@@ -311,6 +311,8 @@ h1 {
     const selectedPriceSpan = document.getElementById('selectedPrice');
     const confirmBtn = document.getElementById('confirmBookingBtn');
     const seats = document.querySelectorAll('.seat');
+
+    // Новые элементы для "Мои брони"
     const myBookingsBtn = document.getElementById('myBookingsBtn');
     const backToBookingBtn = document.getElementById('backToBookingBtn');
     const myBookingsDiv = document.getElementById('myBookings');
@@ -381,20 +383,22 @@ h1 {
     document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const bookingId = e.target.dataset.id;
-            if (confirm('Отменить эту бронь?')) {
-                const { error: deleteError } = await supabaseClient
-                    .from('bookings')
-                    .delete()
-                    .eq('id', bookingId);
+            if (!confirm('Отменить эту бронь?')) return;
 
-                if (deleteError) {
-                    alert('Не удалось отменить бронь. Попробуйте ещё раз.');
-                    return;
-                }
+            const { error: deleteError } = await supabaseClient
+                .from('bookings')
+                .delete()
+                .eq('id', parseInt(bookingId));
 
-                alert('Бронь отменена.');
-                location.reload();
+            if (deleteError) {
+                console.error('Ошибка удаления:', deleteError);
+                alert('Не удалось отменить бронь. Попробуйте ещё раз.');
+                return;
             }
+
+            alert('Бронь отменена.');
+            await loadMyBookings();
+            await loadTakenSeats();
         });
     });
 }
