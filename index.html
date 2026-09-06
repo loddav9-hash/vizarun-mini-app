@@ -202,6 +202,24 @@ h1 {
     border-radius: 4px;
     display: inline-block;
 }
+.secondary-btn {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 10px auto;
+    padding: 10px;
+    background-color: #e5e7eb;
+    color: #111827;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.secondary-btn:hover {
+    background-color: #d1d5db;
+}
     </style>
 </head>
 <body>
@@ -224,6 +242,14 @@ h1 {
             <option value="Белград на воде">Белград на воде</option>
             <option value="Сава центр">Сава центр</option>
         </select>
+    </div>
+
+    <button id="myBookingsBtn" class="secondary-btn">Мои брони</button>
+
+    <div id="myBookings" style="display: none;" class="summary">
+    <h3>Мои брони</h3>
+    <div id="bookingsList"></div>
+    <button id="backToBookingBtn" class="secondary-btn">Назад к бронированию</button>
     </div>
 
     <div class="car-scheme" id="carScheme">
@@ -266,6 +292,8 @@ h1 {
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
+    const tgUser = tg.initDataUnsafe?.user;
+    const currentUserId = tgUser ? tgUser.id.toString() : null;
 
     // === Supabase ===
     const SUPABASE_URL = 'https://fzkrmvvzucdrdqioedbn.supabase.co';
@@ -283,6 +311,13 @@ h1 {
     const selectedPriceSpan = document.getElementById('selectedPrice');
     const confirmBtn = document.getElementById('confirmBookingBtn');
     const seats = document.querySelectorAll('.seat');
+    const myBookingsBtn = document.getElementById('myBookingsBtn');
+    const backToBookingBtn = document.getElementById('backToBookingBtn');
+    const myBookingsDiv = document.getElementById('myBookings');
+    const bookingsList = document.getElementById('bookingsList');
+    const bookingForm = document.querySelector('.booking-form');
+    const carScheme = document.getElementById('carScheme');
+    const summary = document.getElementById('summary');
 
     // === Обновление сводки ===
     function updateSummary() {
@@ -305,6 +340,65 @@ h1 {
         }
     }
 
+    async function loadMyBookings() {
+    if (!currentUserId) {
+        bookingsList.innerHTML = '<p>Вы не авторизованы.</p>';
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from('bookings')
+        .select('*')
+        .eq('user_id', currentUserId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Ошибка загрузки моих броней:', error);
+        bookingsList.innerHTML = '<p>Ошибка загрузки.</p>';
+        return;
+    }
+
+    bookingsList.innerHTML = '';
+
+    if (data.length === 0) {
+        bookingsList.innerHTML = '<p>У вас нет активных броней.</p>';
+        return;
+    }
+
+    data.forEach(booking => {
+        const item = document.createElement('div');
+        item.style.borderBottom = '1px solid #e5e7eb';
+        item.style.padding = '10px 0';
+        item.innerHTML = `
+            <p><strong>Дата:</strong> ${booking.date} <strong>Время:</strong> ${booking.time}</p>
+            <p><strong>Точка:</strong> ${booking.pickup_point || '—'}</p>
+            <p><strong>Места:</strong> ${Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats}</p>
+            <button class="cancel-booking-btn" data-id="${booking.id}">Отменить</button>
+        `;
+        bookingsList.appendChild(item);
+    });
+
+    document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const bookingId = e.target.dataset.id;
+            if (confirm('Отменить эту бронь?')) {
+                const { error: deleteError } = await supabaseClient
+                    .from('bookings')
+                    .delete()
+                    .eq('id', bookingId);
+
+                if (deleteError) {
+                    alert('Не удалось отменить бронь. Попробуйте ещё раз.');
+                    return;
+                }
+
+                alert('Бронь отменена.');
+                loadMyBookings();
+                loadTakenSeats();
+            }
+        });
+    });
+}
     // === Загрузка занятых мест ===
     async function loadTakenSeats() {
         const date = datePicker.value;
@@ -432,6 +526,26 @@ if (sendError) {
     }
   )
   .subscribe();
+
+myBookingsBtn.addEventListener('click', async () => {
+    bookingForm.style.display = 'none';
+    carScheme.style.display = 'none';
+    summary.style.display = 'none';
+    confirmBtn.style.display = 'none';
+    myBookingsBtn.style.display = 'none';
+    myBookingsDiv.style.display = 'block';
+    await loadMyBookings();
+});
+
+backToBookingBtn.addEventListener('click', () => {
+    bookingForm.style.display = 'block';
+    carScheme.style.display = 'flex';
+    summary.style.display = 'block';
+    confirmBtn.style.display = 'block';
+    myBookingsBtn.style.display = 'block';
+    myBookingsDiv.style.display = 'none';
+    loadTakenSeats();
+});
       // === Инициализация ===
     updateSummary();
     loadTakenSeats();
