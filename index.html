@@ -237,11 +237,11 @@
 
         <label for="timePicker">Время отправления:</label>
         <select id="timePicker" required>
-        <option value="">-- выберите время --</option>
+            <option value="">-- выберите время --</option>
         </select>
         <label for="pickupPoint">Точка посадки:</label>
         <select id="pickupPoint" required>
-        <option value="">-- выберите точку --</option>
+            <option value="">-- выберите точку --</option>
         </select>
     </div>
 
@@ -312,6 +312,7 @@
         const selectedPriceSpan = document.getElementById('selectedPrice');
         const confirmBtn = document.getElementById('confirmBookingBtn');
         const seats = document.querySelectorAll('.seat');
+        let pickupPointsMap = {};
 
         // Устанавливаем минимальную дату на сегодня
         const today = new Date();
@@ -420,11 +421,17 @@
 
             const select = document.getElementById('pickupPoint');
             select.innerHTML = '<option value="">-- выберите точку --</option>';
+
+            pickupPointsMap = {}; // очищаем перед заполнением
+
             data.forEach(point => {
                 const option = document.createElement('option');
                 option.value = point.name;
                 option.textContent = point.name;
                 select.appendChild(option);
+
+                // Сохраняем map_url для этой точки
+                pickupPointsMap[point.name] = point.map_url || '';
             });
         }
 
@@ -516,12 +523,7 @@
             const userName = tgUser ? (tgUser.first_name || '') + ' ' + (tgUser.last_name || '') : 'Гость';
 
             // Ссылка на карту в зависимости от точки посадки
-            let mapUrl = '';
-            if (pickup === 'Белград на воде') {
-                mapUrl = 'https://maps.google.com/?q=Belgrade+Waterfront';
-            } else if (pickup === 'Сава центр') {
-                mapUrl = 'https://maps.google.com/?q=Sava+Centar+Belgrade';
-            }
+            const mapUrl = pickupPointsMap[pickup] || '';
 
             // Сохраняем бронь в базу
             const { error: insertError } = await supabaseClient
