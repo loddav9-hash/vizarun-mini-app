@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +13,11 @@
             padding: 20px;
             color: #111827;
         }
+
         h1 {
             text-align: center;
         }
+
         .filter {
             max-width: 400px;
             margin: 0 auto 20px;
@@ -23,11 +26,13 @@
             align-items: center;
             justify-content: center;
         }
+
         .filter input {
             padding: 8px;
             border-radius: 6px;
             border: 1px solid #d1d5db;
         }
+
         table {
             width: 100%;
             max-width: 900px;
@@ -36,17 +41,21 @@
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             border-bottom: 1px solid #e5e7eb;
             text-align: left;
             font-size: 14px;
         }
+
         th {
             background: #f3f4f6;
         }
+
         .delete-btn {
             background: #ef4444;
             color: white;
@@ -55,9 +64,11 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
         .delete-btn:hover {
             background: #dc2626;
         }
+
         .empty {
             text-align: center;
             color: #6b7280;
@@ -65,6 +76,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Админка — брони</h1>
     <div class="filter">
@@ -72,6 +84,16 @@
         <input type="date" id="filterDate">
         <button onclick="loadBookings()">Показать</button>
         <button onclick="clearFilter()">Сбросить</button>
+        <h2>Точки посадки</h2>
+        <div id="pointsList"></div>
+        <input type="text" id="newPointName" placeholder="Название точки">
+        <input type="text" id="newPointMap" placeholder="Ссылка на карту (необязательно)">
+        <button onclick="addPoint()">Добавить точку</button>
+
+        <h2>Время отправления</h2>
+        <div id="timesList"></div>
+        <input type="text" id="newTime" placeholder="Время (например, 09:00)">
+        <button onclick="addTime()">Добавить время</button>
     </div>
     <div id="content"></div>
 
@@ -171,14 +193,72 @@
                 });
             });
         }
+        async function loadPoints() {
+            const { data, error } = await supabaseClient.from('pickup_points').select('*').order('name');
+            if (error) { console.error(error); return; }
+            const list = document.getElementById('pointsList');
+            list.innerHTML = '';
+            data.forEach(p => {
+                const div = document.createElement('div');
+                div.innerHTML = `${p.name} 
+            <button class="delete-btn" onclick="deletePoint(${p.id})">Удалить</button>`;
+                list.appendChild(div);
+            });
+        }
+        async function addPoint() {
+            const name = document.getElementById('newPointName').value.trim();
+            const map = document.getElementById('newPointMap').value.trim();
+            if (!name) return;
+            const { error } = await supabaseClient.from('pickup_points').insert([{ name, map_url: map }]);
+            if (error) { alert('Ошибка добавления'); console.error(error); return; }
+            document.getElementById('newPointName').value = '';
+            document.getElementById('newPointMap').value = '';
+            loadPoints();
+        }
+        async function deletePoint(id) {
+            if (!confirm('Удалить точку?')) return;
+            const { error } = await supabaseClient.from('pickup_points').delete().eq('id', id);
+            if (error) { alert('Ошибка удаления'); console.error(error); return; }
+            loadPoints();
+        }
+        async function loadTimes() {
+            const { data, error } = await supabaseClient.from('departure_times').select('*').order('time');
+            if (error) { console.error(error); return; }
+            const list = document.getElementById('timesList');
+            list.innerHTML = '';
+            data.forEach(t => {
+                const div = document.createElement('div');
+                div.innerHTML = `${t.time} 
+            <button class="delete-btn" onclick="deleteTime(${t.id})">Удалить</button>`;
+                list.appendChild(div);
+            });
+        }
+        async function addTime() {
+            const time = document.getElementById('newTime').value.trim();
+            if (!time) return;
+            const { error } = await supabaseClient.from('departure_times').insert([{ time }]);
+            if (error) { alert('Ошибка добавления'); console.error(error); return; }
+            document.getElementById('newTime').value = '';
+            loadTimes();
+        }
+        async function deleteTime(id) {
+            if (!confirm('Удалить время?')) return;
+            const { error } = await supabaseClient.from('departure_times').delete().eq('id', id);
+            if (error) { alert('Ошибка удаления'); console.error(error); return; }
+            loadTimes();
+        }
+
+        // Вызови при загрузке страницы (в конце скрипта, после loadBookings())
+        loadPoints();
+        loadTimes();
 
         function clearFilter() {
             filterDate.value = '';
-            loadBookings();
+            loadBookings(); з
         }
-
-        // Загружаем все брони при открытии
+        // Загружаем все брони при открытииЗ
         loadBookings();
     </script>
 </body>
+
 </html>
