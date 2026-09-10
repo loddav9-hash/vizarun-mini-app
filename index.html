@@ -312,6 +312,13 @@ h1 {
     const confirmBtn = document.getElementById('confirmBookingBtn');
     const seats = document.querySelectorAll('.seat');
 
+    // Устанавливаем минимальную дату на сегодня
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    datePicker.min = `${year}-${month}-${day}`;
+
     // Новые элементы для "Мои брони"
     const myBookingsBtn = document.getElementById('myBookingsBtn');
     const backToBookingBtn = document.getElementById('backToBookingBtn');
