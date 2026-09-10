@@ -84,6 +84,9 @@
         <input type="date" id="filterDate">
         <button onclick="loadBookings()">Показать</button>
         <button onclick="clearFilter()">Сбросить</button>
+    </div>
+    <div
+        style="max-width: 900px; margin: 20px auto; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <h2>Точки посадки</h2>
         <div id="pointsList"></div>
         <input type="text" id="newPointName" placeholder="Название точки">
@@ -254,9 +257,9 @@
 
         function clearFilter() {
             filterDate.value = '';
-            loadBookings(); з
+            loadBookings();
         }
-        // Загружаем все брони при открытииЗ
+        // Загружаем все брони при открытии
         loadBookings();
     </script>
 </body>
