@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR — Визаран</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #111827;
+            text-align: center;
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 15px;
+            color: #6b7280;
+            margin-bottom: 25px;
+            max-width: 400px;
+        }
+        .qr-box {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        #qrcode {
+            display: block;
+            margin: 0 auto;
+        }
+        .link {
+            font-size: 14px;
+            color: #3b82f6;
+            word-break: break-all;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .link a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .qr-box {
+                box-shadow: none;
+                border: 1px solid #e5e7eb;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Визаран из Белграда</h1>
+    <p>Отсканируйте QR-код, чтобы открыть приложение для бронирования мест</p>
+
+    <div class="qr-box">
+        <canvas id="qrcode"></canvas>
+    </div>
+
+    <p class="link">
+        Или перейдите по ссылке:<br>
+        <a href="https://t.me/VizaRunBot" target="_blank">https://t.me/VizaRunBot</a>
+    </p>
+
+    <script>
+        const appUrl = 'https://t.me/VizaRunBot'; // при необходимости поменяй на короткую ссылку Mini App
+        QRCode.toCanvas(document.getElementById('qrcode'), appUrl, {
+            width: 260,
+            margin: 2,
+            color: {
+                dark: '#111827',
+                light: '#ffffff'
+            }
+        }, function (error) {
+            if (error) console.error(error);
+        });
+    </script>
+</body>
+</html>
