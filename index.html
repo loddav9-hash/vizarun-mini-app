@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,220 +9,225 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-     * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-body {
-    font-family: 'Inter', Arial, sans-serif;
-    background-color: #f9fafb;
-    color: #111827;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-h1 {
-    font-weight: 600;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #1f2937;
-}
+        h1 {
+            font-weight: 600;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
 
-.booking-form {
-    width: 100%;
-    max-width: 360px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-    padding: 20px;
-    margin-bottom: 20px;
-}
+        .booking-form {
+            width: 100%;
+            max-width: 360px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
-.booking-form label {
-    display: block;
-    font-weight: 500;
-    font-size: 14px;
-    margin-bottom: 6px;
-    color: #374151;
-}
+        .booking-form label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #374151;
+        }
 
-.booking-form input,
-.booking-form select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 16px;
-    margin-bottom: 15px;
-    background: #f9fafb;
-    color: #111827;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
+        .booking-form input,
+        .booking-form select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background: #f9fafb;
+            color: #111827;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
 
-.booking-form input:focus,
-.booking-form select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-}
+        .booking-form input:focus,
+        .booking-form select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
 
-.car-scheme {
-    width: 100%;
-    max-width: 360px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-    padding: 25px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-}
+        .car-scheme {
+            width: 100%;
+            max-width: 360px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
 
-.row {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
 
-.seat {
-    width: 52px;
-    height: 52px;
-    background-color: #e5e7eb;
-    border: 2px solid #d1d5db;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.2s, border-color 0.2s, transform 0.1s, box-shadow 0.2s;
-}
+        .seat {
+            width: 52px;
+            height: 52px;
+            background-color: #e5e7eb;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        }
 
-.seat:hover {
-    background-color: #f3f4f6;
-    border-color: #9ca3af;
-}
+        .seat:hover {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
+        }
 
-.seat.selected {
-    background-color: #10b981;
-    border-color: #059669;
-    color: white;
-    transform: scale(1.03);
-    box-shadow: 0 4px 6px rgba(16,185,129,0.2);
-}
+        .seat.selected {
+            background-color: #10b981;
+            border-color: #059669;
+            color: white;
+            transform: scale(1.03);
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        }
 
-.seat.taken {
-    background-color: #ef4444;
-    border-color: #dc2626;
-    color: white;
-    cursor: not-allowed;
-    opacity: 0.85;
-    box-shadow: none;
-}
+        .seat.taken {
+            background-color: #ef4444;
+            border-color: #dc2626;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.85;
+            box-shadow: none;
+        }
 
-.seat-spacer {
-    width: 52px;
-    height: 52px;
-    visibility: hidden;
-    pointer-events: none;
-}
+        .seat-spacer {
+            width: 52px;
+            height: 52px;
+            visibility: hidden;
+            pointer-events: none;
+        }
 
-.summary {
-    width: 100%;
-    max-width: 360px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-    padding: 18px 20px;
-    margin-bottom: 20px;
-    font-size: 15px;
-    color: #374151;
-}
+        .summary {
+            width: 100%;
+            max-width: 360px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            color: #374151;
+        }
 
-.summary p {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
+        .summary p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
 
-.summary p:last-child {
-    margin-bottom: 0;
-    font-weight: 600;
-    color: #111827;
-}
+        .summary p:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #111827;
+        }
 
-.confirm-btn {
-    width: 100%;
-    max-width: 360px;
-    padding: 14px;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(59,130,246,0.2);
-    transition: background-color 0.2s, transform 0.1s;
-}
+        .confirm-btn {
+            width: 100%;
+            max-width: 360px;
+            padding: 14px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
+        }
 
-.confirm-btn:hover {
-    background-color: #2563eb;
-}
+        .confirm-btn:hover {
+            background-color: #2563eb;
+        }
 
-.confirm-btn:active {
-    background-color: #1d4ed8;
-    transform: scale(0.98);
-}
+        .confirm-btn:active {
+            background-color: #1d4ed8;
+            transform: scale(0.98);
+        }
 
-/* Легенда (по желанию, можно добавить позже) */
-.legend {
-    display: flex;
-    gap: 15px;
-    font-size: 12px;
-    color: #6b7280;
-    margin-top: 5px;
-}
-.legend span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.legend .seat-demo {
-    width: 15px;
-    height: 15px;
-    border-radius: 4px;
-    display: inline-block;
-}
-.secondary-btn {
-    display: block;
-    width: 100%;
-    max-width: 360px;
-    margin: 10px auto;
-    padding: 10px;
-    background-color: #e5e7eb;
-    color: #111827;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.secondary-btn:hover {
-    background-color: #d1d5db;
-}
+        /* Легенда (по желанию, можно добавить позже) */
+        .legend {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend .seat-demo {
+            width: 15px;
+            height: 15px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .secondary-btn {
+            display: block;
+            width: 100%;
+            max-width: 360px;
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #e5e7eb;
+            color: #111827;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .secondary-btn:hover {
+            background-color: #d1d5db;
+        }
     </style>
 </head>
+
 <body>
     <h1>Выбор места</h1>
 
@@ -237,7 +243,7 @@ h1 {
             <option value="18:00">18:00</option>
         </select>
         <label for="pickupPoint">Точка посадки:</label>
-            <select id="pickupPoint" required>
+        <select id="pickupPoint" required>
             <option value="">-- выберите точку --</option>
             <option value="Белград на воде">Белград на воде</option>
             <option value="Сава центр">Сава центр</option>
@@ -247,9 +253,9 @@ h1 {
     <button id="myBookingsBtn" class="secondary-btn">Мои брони</button>
 
     <div id="myBookings" style="display: none;" class="summary">
-    <h3>Мои брони</h3>
-    <div id="bookingsList"></div>
-    <button id="backToBookingBtn" class="secondary-btn">Назад к бронированию</button>
+        <h3>Мои брони</h3>
+        <div id="bookingsList"></div>
+        <button id="backToBookingBtn" class="secondary-btn">Назад к бронированию</button>
     </div>
 
     <div class="car-scheme" id="carScheme">
@@ -289,276 +295,289 @@ h1 {
 
     <button id="confirmBookingBtn" class="confirm-btn">Подтвердить бронирование</button>
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    const tgUser = tg.initDataUnsafe?.user;
-    const currentUserId = tgUser ? tgUser.id.toString() : null;
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        const tgUser = tg.initDataUnsafe?.user;
+        const currentUserId = tgUser ? tgUser.id.toString() : null;
 
-    // === Supabase ===
-    const SUPABASE_URL = 'https://fzkrmvvzucdrdqioedbn.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_mw0YA3FZpGiRudzjaMkhXQ_nRtNsWbq';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // === Supabase ===
+        const SUPABASE_URL = 'https://fzkrmvvzucdrdqioedbn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_mw0YA3FZpGiRudzjaMkhXQ_nRtNsWbq';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // === Элементы ===
-    const datePicker = document.getElementById('datePicker');
-    const timePicker = document.getElementById('timePicker');
-    const pickupPoint = document.getElementById('pickupPoint');
-    const selectedDateSpan = document.getElementById('selectedDate');
-    const selectedTimeSpan = document.getElementById('selectedTime');
-    const selectedPickupSpan = document.getElementById('selectedPickup');
-    const selectedSeatsSpan = document.getElementById('selectedSeats');
-    const selectedPriceSpan = document.getElementById('selectedPrice');
-    const confirmBtn = document.getElementById('confirmBookingBtn');
-    const seats = document.querySelectorAll('.seat');
+        // === Элементы ===
+        const datePicker = document.getElementById('datePicker');
+        const timePicker = document.getElementById('timePicker');
+        const pickupPoint = document.getElementById('pickupPoint');
+        const selectedDateSpan = document.getElementById('selectedDate');
+        const selectedTimeSpan = document.getElementById('selectedTime');
+        const selectedPickupSpan = document.getElementById('selectedPickup');
+        const selectedSeatsSpan = document.getElementById('selectedSeats');
+        const selectedPriceSpan = document.getElementById('selectedPrice');
+        const confirmBtn = document.getElementById('confirmBookingBtn');
+        const seats = document.querySelectorAll('.seat');
 
-    // Устанавливаем минимальную дату на сегодня
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    datePicker.min = `${year}-${month}-${day}`;
+        // Устанавливаем минимальную дату на сегодня
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        datePicker.min = `${year}-${month}-${day}`;
 
-    // Новые элементы для "Мои брони"
-    const myBookingsBtn = document.getElementById('myBookingsBtn');
-    const backToBookingBtn = document.getElementById('backToBookingBtn');
-    const myBookingsDiv = document.getElementById('myBookings');
-    const bookingsList = document.getElementById('bookingsList');
-    const bookingForm = document.querySelector('.booking-form');
-    const carScheme = document.getElementById('carScheme');
-    const summary = document.getElementById('summary');
+        // Новые элементы для "Мои брони"
+        const myBookingsBtn = document.getElementById('myBookingsBtn');
+        const backToBookingBtn = document.getElementById('backToBookingBtn');
+        const myBookingsDiv = document.getElementById('myBookings');
+        const bookingsList = document.getElementById('bookingsList');
+        const bookingForm = document.querySelector('.booking-form');
+        const carScheme = document.getElementById('carScheme');
+        const summary = document.getElementById('summary');
 
-    // === Обновление сводки ===
-    function updateSummary() {
-        const date = datePicker.value;
-        const time = timePicker.value;
-        const pickup = pickupPoint.value;
-        const selected = document.querySelectorAll('.seat.selected');
+        // === Обновление сводки ===
+        function updateSummary() {
+            const date = datePicker.value;
+            const time = timePicker.value;
+            const pickup = pickupPoint.value;
+            const selected = document.querySelectorAll('.seat.selected');
 
-        selectedDateSpan.textContent = date || 'не выбрана';
-        selectedTimeSpan.textContent = time || 'не выбрано';
-        selectedPickupSpan.textContent = pickup || 'не выбрана';
+            selectedDateSpan.textContent = date || 'не выбрана';
+            selectedTimeSpan.textContent = time || 'не выбрано';
+            selectedPickupSpan.textContent = pickup || 'не выбрана';
 
-        if (selected.length === 0) {
-            selectedSeatsSpan.textContent = 'нет';
-            selectedPriceSpan.textContent = '0';
-        } else {
-            const numbers = Array.from(selected).map(s => s.dataset.seat).join(', ');
-            selectedSeatsSpan.textContent = numbers;
-            selectedPriceSpan.textContent = selected.length * 1990;
+            if (selected.length === 0) {
+                selectedSeatsSpan.textContent = 'нет';
+                selectedPriceSpan.textContent = '0';
+            } else {
+                const numbers = Array.from(selected).map(s => s.dataset.seat).join(', ');
+                selectedSeatsSpan.textContent = numbers;
+                selectedPriceSpan.textContent = selected.length * 1990;
+            }
         }
-    }
 
-    async function loadMyBookings() {
-    if (!currentUserId) {
-        bookingsList.innerHTML = '<p>Вы не авторизованы.</p>';
-        return;
-    }
+        async function loadMyBookings() {
+            if (!currentUserId) {
+                bookingsList.innerHTML = '<p>Вы не авторизованы.</p>';
+                return;
+            }
 
-    const { data, error } = await supabaseClient
-        .from('bookings')
-        .select('*')
-        .eq('user_id', currentUserId)
-        .order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient
+                .from('bookings')
+                .select('*')
+                .eq('user_id', currentUserId)
+                .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error('Ошибка загрузки моих броней:', error);
-        bookingsList.innerHTML = '<p>Ошибка загрузки.</p>';
-        return;
-    }
+            if (error) {
+                console.error('Ошибка загрузки моих броней:', error);
+                bookingsList.innerHTML = '<p>Ошибка загрузки.</p>';
+                return;
+            }
 
-    bookingsList.innerHTML = '';
+            bookingsList.innerHTML = '';
 
-    if (data.length === 0) {
-        bookingsList.innerHTML = '<p>У вас нет активных броней.</p>';
-        return;
-    }
+            if (data.length === 0) {
+                bookingsList.innerHTML = '<p>У вас нет активных броней.</p>';
+                return;
+            }
 
-    data.forEach(booking => {
-        const item = document.createElement('div');
-        item.style.borderBottom = '1px solid #e5e7eb';
-        item.style.padding = '10px 0';
-        item.innerHTML = `
+            data.forEach(booking => {
+                const item = document.createElement('div');
+                item.style.borderBottom = '1px solid #e5e7eb';
+                item.style.padding = '10px 0';
+                item.innerHTML = `
             <p><strong>Дата:</strong> ${booking.date} <strong>Время:</strong> ${booking.time}</p>
             <p><strong>Точка:</strong> ${booking.pickup_point || '—'}</p>
             <p><strong>Места:</strong> ${Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats}</p>
             <button class="cancel-booking-btn" data-id="${booking.id}">Отменить</button>
         `;
-        bookingsList.appendChild(item);
-    });
+                bookingsList.appendChild(item);
+            });
 
-    document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            const bookingId = e.target.dataset.id;
-            if (!confirm('Отменить эту бронь?')) return;
+            document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const bookingId = e.target.dataset.id;
+                    if (!confirm('Отменить эту бронь?')) return;
 
-            const { error: deleteError } = await supabaseClient
+                    const { error: deleteError } = await supabaseClient
+                        .from('bookings')
+                        .delete()
+                        .eq('id', parseInt(bookingId));
+
+                    if (deleteError) {
+                        console.error('Ошибка удаления:', deleteError);
+                        alert('Не удалось отменить бронь. Попробуйте ещё раз.');
+                        return;
+                    }
+
+                    alert('Бронь отменена.');
+                    await loadMyBookings();
+                    await loadTakenSeats();
+                });
+            });
+        }
+        // === Загрузка занятых мест ===
+        async function loadTakenSeats() {
+            const date = datePicker.value;
+            const time = timePicker.value;
+
+            seats.forEach(seat => seat.classList.remove('taken'));
+            if (!date || !time) return;
+
+            const { data, error } = await supabaseClient
                 .from('bookings')
-                .delete()
-                .eq('id', parseInt(bookingId));
+                .select('seats')
+                .eq('date', date)
+                .eq('time', time);
 
-            if (deleteError) {
-                console.error('Ошибка удаления:', deleteError);
-                alert('Не удалось отменить бронь. Попробуйте ещё раз.');
+            if (error) {
+                console.error('Ошибка загрузки занятых мест:', error);
                 return;
             }
 
-            alert('Бронь отменена.');
-            await loadMyBookings();
-            await loadTakenSeats();
-        });
-    });
-}
-    // === Загрузка занятых мест ===
-    async function loadTakenSeats() {
-        const date = datePicker.value;
-        const time = timePicker.value;
+            const takenSeats = [];
+            data.forEach(booking => {
+                if (booking.seats && Array.isArray(booking.seats)) {
+                    takenSeats.push(...booking.seats);
+                }
+            });
 
-        seats.forEach(seat => seat.classList.remove('taken'));
-        if (!date || !time) return;
-
-        const { data, error } = await supabaseClient
-            .from('bookings')
-            .select('seats')
-            .eq('date', date)
-            .eq('time', time);
-
-        if (error) {
-            console.error('Ошибка загрузки занятых мест:', error);
-            return;
+            takenSeats.forEach(seatNumber => {
+                const seat = document.querySelector(`.seat[data-seat="${seatNumber}"]`);
+                if (seat) seat.classList.add('taken');
+            });
         }
 
-        const takenSeats = [];
-        data.forEach(booking => {
-            if (booking.seats && Array.isArray(booking.seats)) {
-                takenSeats.push(...booking.seats);
-            }
+        // === Выбор места ===
+        seats.forEach(seat => {
+            seat.addEventListener('click', function () {
+                if (this.classList.contains('taken')) return;
+                this.classList.toggle('selected');
+                updateSummary();
+            });
         });
 
-        takenSeats.forEach(seatNumber => {
-            const seat = document.querySelector(`.seat[data-seat="${seatNumber}"]`);
-            if (seat) seat.classList.add('taken');
-        });
-    }
-
-    // === Выбор места ===
-    seats.forEach(seat => {
-        seat.addEventListener('click', function() {
-            if (this.classList.contains('taken')) return;
-            this.classList.toggle('selected');
+        // === Обработчики даты/времени/точки ===
+        datePicker.addEventListener('change', () => {
             updateSummary();
+            loadTakenSeats();
         });
-    });
+        timePicker.addEventListener('change', () => {
+            updateSummary();
+            loadTakenSeats();
+        });
+        pickupPoint.addEventListener('change', updateSummary);
 
-    // === Обработчики даты/времени/точки ===
-    datePicker.addEventListener('change', () => {
+        confirmBtn.addEventListener('click', async function () {
+            const date = datePicker.value;
+            const time = timePicker.value;
+            const pickup = pickupPoint.value;
+            const selectedSeats = document.querySelectorAll('.seat.selected');
+
+            if (!date) { alert('Пожалуйста, выберите дату поездки.'); return; }
+            if (!time) { alert('Пожалуйста, выберите время отправления.'); return; }
+            if (!pickup) { alert('Пожалуйста, выберите точку посадки.'); return; }
+            if (selectedSeats.length === 0) { alert('Пожалуйста, выберите хотя бы одно место.'); return; }
+
+            const seatNumbers = Array.from(selectedSeats).map(seat => seat.dataset.seat);
+            const totalPrice = seatNumbers.length * 1990;
+
+            const tgUser = tg.initDataUnsafe?.user;
+            const userId = tgUser ? tgUser.id.toString() : 'guest-' + Date.now();
+            const userName = tgUser ? (tgUser.first_name || '') + ' ' + (tgUser.last_name || '') : 'Гость';
+
+            // Ссылка на карту в зависимости от точки посадки
+            let mapUrl = '';
+            if (pickup === 'Белград на воде') {
+                mapUrl = 'https://maps.google.com/?q=Belgrade+Waterfront';
+            } else if (pickup === 'Сава центр') {
+                mapUrl = 'https://maps.google.com/?q=Sava+Centar+Belgrade';
+            }
+
+            // Сохраняем бронь в базу
+            const { error: insertError } = await supabaseClient
+                .from('bookings')
+                .insert([{
+                    date,
+                    time,
+                    seats: seatNumbers,
+                    user_id: userId,
+                    user_name: userName,
+                    pickup_point: pickup,
+                    created_at: new Date().toISOString()
+                }]);
+
+            if (insertError) {
+                console.error('Ошибка бронирования:', insertError);
+                alert('Произошла ошибка. Попробуйте ещё раз.');
+                return;
+            }
+
+            // Отправка подтверждения в личку через Edge Function
+            const { error: sendError } = await supabaseClient.functions.invoke('send-booking-confirmation', {
+                body: {
+                    chat_id: userId,
+                    text: `✅ Бронирование подтверждено!\n\n📅 Дата: ${date}\n🕒 Время: ${time}\n📍 Точка посадки: ${pickup}\n🗺 Карта: ${mapUrl}\n💺 Места: ${seatNumbers.join(', ')}\n💰 Цена: ${totalPrice} дин.`
+                }
+            });
+
+            if (sendError) {
+                console.error('Ошибка отправки сообщения:', sendError);
+                // Не блокируем пользователя, просто логируем
+            }
+
+            // Сброс выбора
+            selectedSeats.forEach(seat => seat.classList.remove('selected'));
+            updateSummary();
+            await loadTakenSeats();
+
+            // Всплывающее окно для пользователя (можно убрать позже)
+            const message = `✅ Бронирование подтверждено!\n\n` +
+                `📅 Дата: ${date}\n` +
+                `🕒 Время: ${time}\n` +
+                `📍 Точка посадки: ${pickup}\n` +
+                `🗺 Карта: ${mapUrl}\n` +
+                `💺 Места: ${seatNumbers.join(', ')}\n` +
+                `💰 Цена: ${totalPrice} дин.\n\n` +
+                `Спасибо!`;
+            alert(message);
+        });
+
+        // Подписка на изменения в таблице bookings
+        const channel = supabaseClient
+            .channel('bookings-changes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'bookings' },
+                (payload) => {
+                    console.log('Изменение в бронях:', payload);
+                    loadTakenSeats(); // перезагружаем занятые места
+                }
+            )
+            .subscribe();
+
+        myBookingsBtn.addEventListener('click', async () => {
+            bookingForm.style.display = 'none';
+            carScheme.style.display = 'none';
+            summary.style.display = 'none';
+            confirmBtn.style.display = 'none';
+            myBookingsBtn.style.display = 'none';
+            myBookingsDiv.style.display = 'block';
+            await loadMyBookings();
+        });
+
+        backToBookingBtn.addEventListener('click', () => {
+            bookingForm.style.display = 'block';
+            carScheme.style.display = 'flex';
+            summary.style.display = 'block';
+            confirmBtn.style.display = 'block';
+            myBookingsBtn.style.display = 'block';
+            myBookingsDiv.style.display = 'none';
+            loadTakenSeats();
+        });
+        // === Инициализация ===
         updateSummary();
         loadTakenSeats();
-    });
-    timePicker.addEventListener('change', () => {
-        updateSummary();
-        loadTakenSeats();
-    });
-    pickupPoint.addEventListener('change', updateSummary);
-
-    // === Подтверждение брони ===
-    confirmBtn.addEventListener('click', async function() {
-        const date = datePicker.value;
-        const time = timePicker.value;
-        const pickup = pickupPoint.value;
-        const selectedSeats = document.querySelectorAll('.seat.selected');
-
-        if (!date) { alert('Пожалуйста, выберите дату поездки.'); return; }
-        if (!time) { alert('Пожалуйста, выберите время отправления.'); return; }
-        if (!pickup) { alert('Пожалуйста, выберите точку посадки.'); return; }
-        if (selectedSeats.length === 0) { alert('Пожалуйста, выберите хотя бы одно место.'); return; }
-
-        const seatNumbers = Array.from(selectedSeats).map(seat => seat.dataset.seat);
-        const totalPrice = seatNumbers.length * 1990;
-
-        const tgUser = tg.initDataUnsafe?.user;
-        const userId = tgUser ? tgUser.id.toString() : 'guest-' + Date.now();
-        const userName = tgUser ? (tgUser.first_name || '') + ' ' + (tgUser.last_name || '') : 'Гость';
-
-        const { error: insertError } = await supabaseClient
-            .from('bookings')
-            .insert([{
-                date,
-                time,
-                seats: seatNumbers,
-                user_id: userId,
-                user_name: userName,
-                pickup_point: pickup,
-                created_at: new Date().toISOString()
-            }]);
-
-        if (insertError) {
-            console.error('Ошибка бронирования:', insertError);
-            alert('Произошла ошибка. Попробуйте ещё раз.');
-            return;
-        }
-  // Отправка подтверждения в личку через Edge Function
-        const { error: sendError } = await supabaseClient.functions.invoke('send-booking-confirmation', {
-          body: {
-            chat_id: userId,
-            text: `✅ Бронирование подтверждено!\n\n📅 Дата: ${date}\n🕒 Время: ${time}\n📍 Точка посадки: ${pickup}\n💺 Места: ${seatNumbers.join(', ')}\n💰 Цена: ${totalPrice} дин.`
-  }
-});
-
-if (sendError) {
-  console.error('Ошибка отправки сообщения:', sendError);
-  // Не блокируем пользователя, просто логируем
-}
-        // Сброс выбора
-        selectedSeats.forEach(seat => seat.classList.remove('selected'));
-        updateSummary();
-        await loadTakenSeats();
-
-        const message = `✅ Бронирование подтверждено!\n\n` +
-                        `📅 Дата: ${date}\n` +
-                        `🕒 Время: ${time}\n` +
-                        `📍 Точка посадки: ${pickup}\n` +
-                        `💺 Места: ${seatNumbers.join(', ')}\n` +
-                        `💰 Цена: ${totalPrice} дин.\n\n` +
-                        `Спасибо!`;
-        alert(message);
-    });
-
-      // Подписка на изменения в таблице bookings
-    const channel = supabaseClient
-      .channel('bookings-changes')
-      .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: 'bookings' },
-    (payload) => {
-      console.log('Изменение в бронях:', payload);
-      loadTakenSeats(); // перезагружаем занятые места
-    }
-  )
-  .subscribe();
-
-myBookingsBtn.addEventListener('click', async () => {
-    bookingForm.style.display = 'none';
-    carScheme.style.display = 'none';
-    summary.style.display = 'none';
-    confirmBtn.style.display = 'none';
-    myBookingsBtn.style.display = 'none';
-    myBookingsDiv.style.display = 'block';
-    await loadMyBookings();
-});
-
-backToBookingBtn.addEventListener('click', () => {
-    bookingForm.style.display = 'block';
-    carScheme.style.display = 'flex';
-    summary.style.display = 'block';
-    confirmBtn.style.display = 'block';
-    myBookingsBtn.style.display = 'block';
-    myBookingsDiv.style.display = 'none';
-    loadTakenSeats();
-});
-      // === Инициализация ===
-    updateSummary();
-    loadTakenSeats();
-</script>
+    </script>
 </body>
+
 </html>
