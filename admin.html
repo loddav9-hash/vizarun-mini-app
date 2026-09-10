@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка — Визаран</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9fafb;
+            padding: 20px;
+            color: #111827;
+        }
+        h1 {
+            text-align: center;
+        }
+        .filter {
+            max-width: 400px;
+            margin: 0 auto 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+        .filter input {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+        }
+        table {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background: #f3f4f6;
+        }
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+        .empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Админка — брони</h1>
+    <div class="filter">
+        <label for="filterDate">Фильтр по дате:</label>
+        <input type="date" id="filterDate">
+        <button onclick="loadBookings()">Показать</button>
+        <button onclick="clearFilter()">Сбросить</button>
+    </div>
+    <div id="content"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://fzkrmvvzucdrdqioedbn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_mw0YA3FZpGiRudzjaMkhXQ_nRtNsWbq';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const ADMIN_PASSWORD = 'vizarun2026'; // можешь поменять
+
+        // Запрос пароля
+        const entered = prompt('Введите пароль администратора:');
+        if (entered !== ADMIN_PASSWORD) {
+            document.body.innerHTML = '<h1>Доступ запрещён</h1>';
+            throw new Error('Access denied');
+        }
+
+        const content = document.getElementById('content');
+        const filterDate = document.getElementById('filterDate');
+
+        async function loadBookings() {
+            content.innerHTML = '<p class="empty">Загрузка...</p>';
+
+            let query = supabaseClient
+                .from('bookings')
+                .select('*')
+                .order('date', { ascending: true })
+                .order('time', { ascending: true });
+
+            if (filterDate.value) {
+                query = query.eq('date', filterDate.value);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                console.error(error);
+                content.innerHTML = '<p class="empty">Ошибка загрузки.</p>';
+                return;
+            }
+
+            if (data.length === 0) {
+                content.innerHTML = '<p class="empty">Нет броней.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Время</th>
+                        <th>Точка</th>
+                        <th>Места</th>
+                        <th>Имя</th>
+                        <th>User ID</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+
+            data.forEach(booking => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${booking.date}</td>
+                    <td>${booking.time}</td>
+                    <td>${booking.pickup_point || '—'}</td>
+                    <td>${Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats}</td>
+                    <td>${booking.user_name || '—'}</td>
+                    <td>${booking.user_id || '—'}</td>
+                    <td><button class="delete-btn" data-id="${booking.id}">Удалить</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            content.innerHTML = '';
+            content.appendChild(table);
+
+            table.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    if (!confirm('Удалить эту бронь?')) return;
+
+                    const { error } = await supabaseClient
+                        .from('bookings')
+                        .delete()
+                        .eq('id', parseInt(id));
+
+                    if (error) {
+                        alert('Ошибка удаления');
+                        console.error(error);
+                    } else {
+                        loadBookings();
+                    }
+                });
+            });
+        }
+
+        function clearFilter() {
+            filterDate.value = '';
+            loadBookings();
+        }
+
+        // Загружаем все брони при открытии
+        loadBookings();
+    </script>
+</body>
+</html>
